@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.env.*
+
+# Lambda ZIP package
+*.zip
+
+# Local packages installed for Lambda
+requests/
+urllib3/
+charset_normalizer/
+certifi/
+idna/
+*.dist-info/
+
+# Node modules (if you add frontend tooling later)
+node_modules/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE/editor folders
+.vscode/
+.idea/
+
+# OS trash
+*.swp
+*.swo
+*.bak
+
+# Git credentials or config (if any)
+.git-credentials
+
+# Frontend localStorage or cache (if any)
+*.local.json
+
+# Files generated during testing or build
+build/
+dist/
