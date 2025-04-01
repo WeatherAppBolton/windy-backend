@@ -7,11 +7,10 @@ This is the backend of the Weather App, a serverless weather forecast applicatio
 ## 🏗️ Project Structure
 ```
 /src
-├── handlers          # Lambda function handlers for API requests
-├── services         # Business logic and integration with OpenWeather API
-├── utils            # Utility functions for data processing and error handling
-├── config           # Environment variables and API keys management
-├── tests            # Unit and integration tests
+├──front end 
+├── back end
+├── 
+
 ```
 
 ## ⚡ Technologies Used
