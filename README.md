@@ -4,27 +4,28 @@ This is the backend of the Weather App, a serverless weather forecast applicatio
 ## 🌍 Live API Endpoint
 🔗 Base API URL: https://j69ymxtksk.execute-api.eu-north-1.amazonaws.com/weather
 
+🔗unique API URL : https://j69ymxtksk.execute-api.eu-north-1.amazonaws.com/weather?location=London
 ## 🏗️ Project Structure
 ```
 /src
 ├──front end 
 ├── back end
-├── 
+├── demo repository
 
 ```
 
 ## ⚡ Technologies Used
-- **Backend Framework:** Node.js (Express-like routing with AWS Lambda)
-- **API Gateway:** AWS API Gateway for routing and request handling
+- **Backend Framework:** python (Express-like routing with AWS Lambda)
+- **API Gateway:**  API Gateway for routing and request handling
 - **Serverless Compute:** AWS Lambda for executing backend logic
 - **Weather Data Source:** OpenWeatherMap API
-- **Database (Optional):** DynamoDB (for storing user preferences or historical data)
-- **CI/CD:** GitHub Actions + AWS CodePipeline
+- **Database (Optional):** 
+- **CI/CD:** 
 
 ## 🛠️ Installation & Setup
 ### 1️⃣ Clone the repository
 ```sh
-git clone https://github.com/YOUR_USERNAME/weather-app-backend.git
+git clone https://github.com/WeatherAppBolton/Back-End.git
 cd weather-app-backend
 ```
 
@@ -38,7 +39,7 @@ Create a `.env` file in the root directory and add the following:
 ```
 OPENWEATHER_API_KEY=your_openweather_api_key
 AWS_REGION=your_aws_region
-DYNAMODB_TABLE=your_dynamodb_table_name (if using a database)
+python=your_python_table_name (if using a database)
 ```
 
 ### 4️⃣ Run the application locally
@@ -70,7 +71,7 @@ npm test
 ```
 
 ## 🚀 Deployment & CI/CD
-The backend is deployed using AWS CodePipeline with GitHub Actions automating the deployment process. Ensure AWS credentials are set up in your CI/CD pipeline for smooth deployment.
+
 
 ---
 ### 🔥 Contributors & Support
