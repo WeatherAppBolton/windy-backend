@@ -76,7 +76,7 @@ The backend is deployed using AWS CodePipeline with GitHub Actions automating th
 ---
 ### 🔥 Contributors & Support
 Feel free to contribute or raise issues in the repository!
-📧 Contact: 
+📧 Contact: antonio, bilal, prateek, mohit, raj
 
 
 
