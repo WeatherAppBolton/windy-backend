@@ -1,4 +1,5 @@
-<<<<<<< HEAD
+<<<<<<<< HEAD
+
 # ☁️ S3 Static Website Hosting Fix
 
 **Task:** Set up and fix public access issues for static front-end hosting via AWS S3.
