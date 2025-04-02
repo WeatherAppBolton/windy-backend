@@ -8,10 +8,10 @@ This is the backend of the Weather App, a serverless weather forecast applicatio
 ## 🏗️ Project Structure
 ```
 /src
-├──front end 
-├── back end
-├── demo repository
-
+├──.gitignore 
+├── README.md
+├── lamda functions
+├── requirements.txt
 ```
 
 ## ⚡ Technologies Used
@@ -60,14 +60,10 @@ serverless deploy
 ## 📌 API Endpoints
 | Method | Endpoint | Description |
 |--------|-------------|-------------------------|
-| GET | `/weather?city=London` | Fetches weather data for the given city |
-| POST | `/preferences` | Saves user preferences (if applicable) |
-| GET | `/preferences/:userId` | Retrieves user preferences (if applicable) |
+| GET | `/weather?location=London` | Fetches weather data for the given city |
 
 ## ✅ Testing
-Run unit tests using:
-```sh
-npm test
+
 ```
 
 ## 🚀 Deployment & CI/CD

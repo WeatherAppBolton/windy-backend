@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ☁️ S3 Static Website Hosting Fix
 
 **Task:** Set up and fix public access issues for static front-end hosting via AWS S3.
@@ -50,3 +51,14 @@ Uploaded the enhanced HTML files to S3 and resolved the **403 Access Denied** is
 - 🧩 Enabled the app to work seamlessly with Lambda + API Gateway
 
 ---
+=======
+# S3 Hosting Fix
+
+✅ Deployed front-end files to AWS S3
+
+- Disabled \"Block all public access\"
+- Added correct bucket policy
+- Enabled static website hosting
+- Set index: `page1.html`, error: `page2.html`
+- Tested URL: http://your-bucket.s3-website-region.amazonaws.com
+
