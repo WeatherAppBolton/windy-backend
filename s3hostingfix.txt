@@ -1,0 +1,9 @@
+# S3 Hosting Fix
+
+✅ Deployed front-end files to AWS S3
+
+- Disabled \"Block all public access\"
+- Added correct bucket policy
+- Enabled static website hosting
+- Set index: `page1.html`, error: `page2.html`
+- Tested URL: http://your-bucket.s3-website-region.amazonaws.com
