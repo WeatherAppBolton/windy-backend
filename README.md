@@ -72,7 +72,7 @@ serverless deploy
 ---
 ### 🔥 Contributors & Support
 Feel free to contribute or raise issues in the repository!
-📧 Contact: antonio, bilal, prateek, mohit, raj, sb16crt
+📧 Contact: antonio, bilal, prateek, mohit, raj, 
 
 
 
