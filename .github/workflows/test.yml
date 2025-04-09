@@ -22,12 +22,14 @@ jobs:
     - name: 📦 Install test dependencies
       run: |
         python -m pip install --upgrade pip
-        # Find and install all requirements.txt in lambda_functions/
         for file in $(find lambda_functions -name "requirements.txt"); do
           pip install -r "$file"
         done
 
+    - name: 🧩 Add lambda_functions to PYTHONPATH
+      run: |
+        echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
     - name: 🧪 Run all unit tests
       run: |
-        # Run all test_*.py files inside /tests folder
         python -m unittest discover -s tests -v
