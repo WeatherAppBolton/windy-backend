@@ -1,10 +1,11 @@
 import json
 import requests
+import os
 
 def lambda_handler(event, context):
     location = event.get("queryStringParameters", {}).get("location", "London")
 
-    api_key = "3e1551bf87cae22bfd3014698a68ece2"  # my personal key
+    api_key = os.environ.get("WEATHER_API_KEY")
     url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
     
     try:

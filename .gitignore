@@ -4,15 +4,10 @@ __pycache__/
 *.egg-info/
 .env
 
-# AWS Lambda deployments
+# Lambda packages
 *.zip
 requests/
 *.dist-info/
 bin/
-
-# OS-specific
-.DS_Store
-Thumbs.db
-
-# Logs and temp
+bcrypt/
 *.log

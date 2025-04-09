@@ -1,0 +1,162 @@
+{
+  "info": {
+    "name": "Windy Weather App - API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "windy-weather-collection"
+  },
+  "item": [
+    {
+      "name": "User Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://0838uo8kkf.execute-api.eu-north-1.amazonaws.com/prod/user/register",
+          "protocol": "https",
+          "host": [
+            "0838uo8kkf",
+            "execute-api",
+            "eu-north-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "prod",
+            "user",
+            "register"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Test@123\",\n  \"name\": \"Windy Tester\"\n}"
+        }
+      }
+    },
+    {
+      "name": "User Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://0838uo8kkf.execute-api.eu-north-1.amazonaws.com/prod/user/login",
+          "protocol": "https",
+          "host": [
+            "0838uo8kkf",
+            "execute-api",
+            "eu-north-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "prod",
+            "user",
+            "login"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Test@123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Get User Preferences",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://0838uo8kkf.execute-api.eu-north-1.amazonaws.com/prod/user/prefs?email=test@example.com",
+          "protocol": "https",
+          "host": [
+            "0838uo8kkf",
+            "execute-api",
+            "eu-north-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "prod",
+            "user",
+            "prefs"
+          ],
+          "query": [
+            {
+              "key": "email",
+              "value": "test@example.com"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update User Preferences",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://0838uo8kkf.execute-api.eu-north-1.amazonaws.com/prod/user/prefs",
+          "protocol": "https",
+          "host": [
+            "0838uo8kkf",
+            "execute-api",
+            "eu-north-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "prod",
+            "user",
+            "prefs"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"theme\": \"sunset\",\n  \"favorites\": [\n    \"Paris\",\n    \"Tokyo\"\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "Get Weather by Location",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://qhn8b1r3k7.execute-api.eu-north-1.amazonaws.com/prod/weather?location=Barcelona",
+          "protocol": "https",
+          "host": [
+            "qhn8b1r3k7",
+            "execute-api",
+            "eu-north-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "prod",
+            "weather"
+          ],
+          "query": [
+            {
+              "key": "location",
+              "value": "Barcelona"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
