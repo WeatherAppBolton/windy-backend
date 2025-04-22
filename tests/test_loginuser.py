@@ -1,5 +1,5 @@
 import unittest
-from lambda_functions.LoginUser.handler import lambda_handler
+from lambda_functions.LoginUser.login_user import lambda_handler
 
 class TestLoginUserHandler(unittest.TestCase):
     def test_invalid_credentials(self):
