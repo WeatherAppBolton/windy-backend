@@ -4,11 +4,11 @@ from lambda_functions.LoginUser.login_user import lambda_handler
 
 class TestLoginUserHandler(unittest.TestCase):
 
-    @patch("lambda_functions.LoginUser.login_user.boto3.client")
-    def test_invalid_credentials(self, mock_boto_client):
-        # Setup mock to simulate user not found in DynamoDB
-        mock_client = mock_boto_client.return_value
-        mock_client.get_item.return_value = {}  # No 'Item' key = user not found
+    @patch("lambda_functions.LoginUser.login_user.boto3.resource")
+    def test_invalid_credentials(self, mock_boto_resource):
+        # Mock table.get_item to return empty result (user not found)
+        mock_table = mock_boto_resource.return_value.Table.return_value
+        mock_table.get_item.return_value = {}  # No 'Item' key
 
         event = {
             "body": '{"email": "fake@example.com", "password": "Fake123!"}'
