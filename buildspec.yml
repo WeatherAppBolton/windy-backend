@@ -18,8 +18,8 @@ phases:
       - zip -j UpdateUserPreferences.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
       - zip -j GetWeatherByLocation.zip lambda_functions/GetWeatherByLocation/get_weather.py
 
-      - echo "🌍 Syncing frontend to S3..."
-      - aws s3 sync frontend/ s3://weather-frontend-app/ --delete || echo "S3 sync failed"
+      - echo "🌍 Uploading frontend to S3..."
+      - aws s3 sync frontend/ s3://weather-frontend-app/ --delete || echo "⚠️ S3 sync failed — check bucket name or permissions"
 
   post_build:
     commands:
@@ -39,7 +39,7 @@ phases:
         for name in "${!FUNCTIONS[@]}"; do
           IFS=' ' read -r zip_file handler <<< "${FUNCTIONS[$name]}"
           echo "→ Deploying $name..."
-          
+
           if aws lambda get-function --function-name "$name" --region "$REGION" >/dev/null 2>&1; then
             echo "✅ Updating $name"
             aws lambda update-function-code \
