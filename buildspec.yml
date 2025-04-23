@@ -19,7 +19,7 @@ phases:
       - zip -j GetWeatherByLocation.zip lambda_functions/GetWeatherByLocation/get_weather.py
 
       - echo "🌍 Uploading frontend to S3..."
-      - aws s3 sync frontend/ s3://weather-frontend-app/ --delete || echo "⚠️ S3 sync failed — check bucket name or permissions"
+      - aws s3 sync frontend/ s3://windy-app2/ --delete || echo "⚠️ S3 sync failed — check bucket name or permissions"
 
   post_build:
     commands:
