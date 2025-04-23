@@ -6,20 +6,23 @@ phases:
       python: 3.11
     commands:
       - pip install --upgrade pip
-      # Try to install zip, but don’t fail the build if it's already installed or yum is unavailable
+      # Install zip only if it's not already available
       - which zip || (command -v yum && yum install -y zip) || echo "zip already installed or yum not available"
 
   build:
     commands:
-      # Package all Lambda functions
+      - echo "Packaging Lambda functions..."
       - zip -j RegisterUser.zip lambda_functions/RegisterUser/register_user.py
       - zip -j GetUserPreferences.zip lambda_functions/GetUserPreferences/get_user_prefs.py
       - zip -j LoginUser.zip lambda_functions/LoginUser/login_user.py
       - zip -j UpdateUserPreferences.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
       - zip -j GetWeatherByLocation.zip lambda_functions/GetWeatherByLocation/get_weather.py
-      
-      # Upload static site to S3
-      - aws s3 sync frontend/ s3://windy-app2/ --delete
+
+      - echo "Checking frontend directory..."
+      - ls -al frontend/ || echo "frontend/ directory not found or empty"
+
+      - echo "Uploading static frontend to S3..."
+      - aws s3 sync frontend/ s3://windy-app2/ --delete || echo "S3 sync failed — check IAM permissions and bucket name"
 
   post_build:
     commands:
