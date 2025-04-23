@@ -12,10 +12,10 @@ phases:
 
   build:
     commands:
-      - echo "🔍 Listing available Lambda function source files..."
+      - echo "🔍 Listing Lambda source files..."
       - find lambda_functions/
 
-      - echo "📦 Packaging Lambda function code into zip files..."
+      - echo "📦 Packaging Lambda functions into zip files..."
       - zip -j register_user.zip lambda_functions/RegisterUser/register_user.py
       - zip -j get_user_prefs.zip lambda_functions/GetUserPreferences/get_user_prefs.py
       - zip -j login_user.zip lambda_functions/LoginUser/login_user.py
@@ -28,20 +28,19 @@ phases:
 
   post_build:
     commands:
-      - echo "🧪 Validating Lambda zip files..."
+      - echo "🧪 Validating zip files..."
       - unzip -l register_user.zip
       - unzip -l get_user_prefs.zip
       - unzip -l login_user.zip
       - unzip -l update_user_prefs.zip
       - unzip -l get_weather.zip
 
-      - echo "🚀 Deploying Lambda functions in eu-north-1..."
-
+      - echo "🚀 Deploying Lambda functions (create if missing)..."
       - |
         for fn in register_user get_user_prefs login_user update_user_prefs get_weather; do
           zip_file="${fn}.zip"
           handler="${fn}.lambda_handler"
-          echo "→ Checking if $fn exists..."
+          echo "→ Checking if Lambda function '$fn' exists..."
 
           if aws lambda get-function --function-name "$fn" >/dev/null 2>&1; then
             echo "✅ Updating existing function: $fn"
