@@ -27,11 +27,11 @@ phases:
   post_build:
     commands:
       - echo "Updating Lambda functions..."
-      - aws lambda update-function-code --function-name RegisterUser --zip-file fileb://RegisterUser.zip
-      - aws lambda update-function-code --function-name GetUserPreferences --zip-file fileb://GetUserPreferences.zip
-      - aws lambda update-function-code --function-name LoginUser --zip-file fileb://LoginUser.zip
-      - aws lambda update-function-code --function-name UpdateUserPreferences --zip-file fileb://UpdateUserPreferences.zip
-      - aws lambda update-function-code --function-name GetWeatherByLocation --zip-file fileb://GetWeatherByLocation.zip
+      - aws lambda update-function-code --function-name register_user --zip-file fileb://RegisterUser.zip
+      - aws lambda update-function-code --function-name get_user_prefs --zip-file fileb://GetUserPreferences.zip
+      - aws lambda update-function-code --function-name login_user --zip-file fileb://LoginUser.zip
+      - aws lambda update-function-code --function-name update_user_prefs --zip-file fileb://UpdateUserPreferences.zip
+      - aws lambda update-function-code --function-name get_weather --zip-file fileb://GetWeatherByLocation.zip
 
 artifacts:
   files:
