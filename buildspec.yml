@@ -5,9 +5,9 @@ phases:
     runtime-versions:
       python: 3.11
     commands:
-      - echo "📦 Installing zip and dependencies..."
+      - echo "📦 Installing dependencies..."
       - pip install --upgrade pip
-      - yum update -y && yum install -y zip
+      - which zip || (command -v yum && yum install -y zip) || (command -v apt-get && apt-get update && apt-get install -y zip) || echo "zip already installed or no package manager available"
 
   build:
     commands:
@@ -19,10 +19,18 @@ phases:
       - zip -j GetWeatherByLocation.zip lambda/GetWeatherByLocation/lambda_function.py
 
       - echo "🌐 Uploading frontend to S3..."
-      - aws s3 sync frontend/ s3://windy-app2/ --delete || echo "S3 sync failed — check bucket or IAM permissions"
+      - ls -al frontend/ || echo "frontend/ directory not found or empty"
+      - aws s3 sync frontend/ s3://weather-frontend-app/ --delete || echo "S3 sync failed — check bucket name or IAM permissions"
 
   post_build:
     commands:
+      - echo "🧪 Validating zip files..."
+      - unzip -l RegisterUser.zip
+      - unzip -l GetUserPreferences.zip
+      - unzip -l LoginUser.zip
+      - unzip -l UpdateUserPreferences.zip
+      - unzip -l GetWeatherByLocation.zip
+
       - echo "🚀 Updating Lambda functions (must already exist)..."
       - aws lambda update-function-code --function-name RegisterUser --zip-file fileb://RegisterUser.zip
       - aws lambda update-function-code --function-name GetUserPreferences --zip-file fileb://GetUserPreferences.zip
