@@ -5,45 +5,50 @@ phases:
     runtime-versions:
       python: 3.11
     commands:
-      - echo "Installing zip if missing..."
+      - echo "📦 Installing zip and setting region..."
       - pip install --upgrade pip
       - zip --version || (command -v yum && yum install -y zip) || echo "zip already installed or yum not available"
       - export AWS_DEFAULT_REGION=eu-north-1
 
   build:
     commands:
-      - echo "🔍 Verifying Lambda source files..."
+      - echo "🔍 Listing available Lambda function source files..."
       - find lambda_functions/
 
-      - echo "📦 Packaging Lambda functions..."
+      - echo "📦 Packaging Lambda function code into zip files..."
       - ls lambda_functions/RegisterUser/register_user.py && zip -j register_user.zip lambda_functions/RegisterUser/register_user.py
       - ls lambda_functions/GetUserPreferences/get_user_prefs.py && zip -j get_user_prefs.zip lambda_functions/GetUserPreferences/get_user_prefs.py
       - ls lambda_functions/LoginUser/login_user.py && zip -j login_user.zip lambda_functions/LoginUser/login_user.py
       - ls lambda_functions/UpdateUserPreferences/update_user_prefs.py && zip -j update_user_prefs.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
       - ls lambda_functions/GetWeatherByLocation/get_weather.py && zip -j get_weather.zip lambda_functions/GetWeatherByLocation/get_weather.py
 
-      - echo "🌐 Checking frontend directory..."
+      - echo "🌐 Checking and syncing frontend..."
       - ls -al frontend/ || echo "frontend/ directory not found or empty"
-
-      - echo "☁️ Uploading static frontend to S3..."
-      - aws s3 sync frontend/ s3://windy-app2/ --delete || echo "S3 sync failed — check IAM permissions and bucket name"
+      - aws s3 sync frontend/ s3://windy-app2/ --delete || echo "S3 sync failed — check IAM permissions or bucket name"
 
   post_build:
     commands:
-      - echo "🧪 Verifying Lambda zip files before deploy..."
+      - echo "🧪 Validating Lambda zip files..."
       - ls -lh *.zip
-      - unzip -l register_user.zip || echo "register_user.zip is missing or invalid"
-      - unzip -l get_user_prefs.zip || echo "get_user_prefs.zip is missing or invalid"
-      - unzip -l login_user.zip || echo "login_user.zip is missing or invalid"
-      - unzip -l update_user_prefs.zip || echo "update_user_prefs.zip is missing or invalid"
-      - unzip -l get_weather.zip || echo "get_weather.zip is missing or invalid"
+      - unzip -l register_user.zip || echo "❌ register_user.zip is missing or invalid"
+      - unzip -l get_user_prefs.zip || echo "❌ get_user_prefs.zip is missing or invalid"
+      - unzip -l login_user.zip || echo "❌ login_user.zip is missing or invalid"
+      - unzip -l update_user_prefs.zip || echo "❌ update_user_prefs.zip is missing or invalid"
+      - unzip -l get_weather.zip || echo "❌ get_weather.zip is missing or invalid"
 
-      - echo "🚀 Deploying to Lambda functions in eu-north-1..."
-      - aws lambda update-function-code --function-name register_user --zip-file fileb://register_user.zip
-      - aws lambda update-function-code --function-name get_user_prefs --zip-file fileb://get_user_prefs.zip
-      - aws lambda update-function-code --function-name login_user --zip-file fileb://login_user.zip
-      - aws lambda update-function-code --function-name update_user_prefs --zip-file fileb://update_user_prefs.zip
-      - aws lambda update-function-code --function-name get_weather --zip-file fileb://get_weather.zip
+      - echo "🔍 Checking if Lambda functions exist..."
+      - aws lambda get-function --function-name register_user --region eu-north-1 || echo "❌ Lambda function 'register_user' not found"
+      - aws lambda get-function --function-name get_user_prefs --region eu-north-1 || echo "❌ Lambda function 'get_user_prefs' not found"
+      - aws lambda get-function --function-name login_user --region eu-north-1 || echo "❌ Lambda function 'login_user' not found"
+      - aws lambda get-function --function-name update_user_prefs --region eu-north-1 || echo "❌ Lambda function 'update_user_prefs' not found"
+      - aws lambda get-function --function-name get_weather --region eu-north-1 || echo "❌ Lambda function 'get_weather' not found"
+
+      - echo "🚀 Updating Lambda functions in eu-north-1..."
+      - aws lambda update-function-code --region eu-north-1 --function-name register_user --zip-file fileb://register_user.zip
+      - aws lambda update-function-code --region eu-north-1 --function-name get_user_prefs --zip-file fileb://get_user_prefs.zip
+      - aws lambda update-function-code --region eu-north-1 --function-name login_user --zip-file fileb://login_user.zip
+      - aws lambda update-function-code --region eu-north-1 --function-name update_user_prefs --zip-file fileb://update_user_prefs.zip
+      - aws lambda update-function-code --region eu-north-1 --function-name get_weather --zip-file fileb://get_weather.zip
 
 artifacts:
   files:
