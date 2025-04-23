@@ -15,7 +15,7 @@ phases:
       - echo "🔍 Listing Lambda source files..."
       - find lambda_functions/
 
-      - echo "📦 Packaging Lambda functions into zip files..."
+      - echo "📦 Packaging Lambda functions..."
       - zip -j register_user.zip lambda_functions/RegisterUser/register_user.py
       - zip -j get_user_prefs.zip lambda_functions/GetUserPreferences/get_user_prefs.py
       - zip -j login_user.zip lambda_functions/LoginUser/login_user.py
@@ -35,7 +35,7 @@ phases:
       - unzip -l update_user_prefs.zip
       - unzip -l get_weather.zip
 
-      - echo "🚀 Deploying Lambda functions (create if missing)..."
+      - echo "🚀 Creating or updating Lambda functions..."
       - |
         for fn in register_user get_user_prefs login_user update_user_prefs get_weather; do
           zip_file="${fn}.zip"
