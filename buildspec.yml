@@ -35,29 +35,12 @@ phases:
       - unzip -l update_user_prefs.zip
       - unzip -l get_weather.zip
 
-      - echo "🚀 Creating or updating Lambda functions..."
-      - |
-        for fn in register_user get_user_prefs login_user update_user_prefs get_weather; do
-          zip_file="${fn}.zip"
-          handler="${fn}.lambda_handler"
-          echo "→ Checking if Lambda function '$fn' exists..."
-
-          if aws lambda get-function --function-name "$fn" >/dev/null 2>&1; then
-            echo "✅ Updating existing function: $fn"
-            aws lambda update-function-code \
-              --function-name "$fn" \
-              --zip-file "fileb://${zip_file}"
-          else
-            echo "🆕 Creating new function: $fn"
-            aws lambda create-function \
-              --function-name "$fn" \
-              --runtime python3.11 \
-              --role arn:aws:iam::651706765226:role/your-lambda-execution-role \
-              --handler "$handler" \
-              --zip-file "fileb://${zip_file}" \
-              --region eu-north-1
-          fi
-        done
+      - echo "🚀 Updating Lambda functions (must already exist)..."
+      - aws lambda update-function-code --function-name register_user --zip-file fileb://register_user.zip
+      - aws lambda update-function-code --function-name get_user_prefs --zip-file fileb://get_user_prefs.zip
+      - aws lambda update-function-code --function-name login_user --zip-file fileb://login_user.zip
+      - aws lambda update-function-code --function-name update_user_prefs --zip-file fileb://update_user_prefs.zip
+      - aws lambda update-function-code --function-name get_weather --zip-file fileb://get_weather.zip
 
 artifacts:
   files:
