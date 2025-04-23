@@ -16,39 +16,49 @@ phases:
       - find lambda_functions/
 
       - echo "📦 Packaging Lambda function code into zip files..."
-      - ls lambda_functions/RegisterUser/register_user.py && zip -j register_user.zip lambda_functions/RegisterUser/register_user.py
-      - ls lambda_functions/GetUserPreferences/get_user_prefs.py && zip -j get_user_prefs.zip lambda_functions/GetUserPreferences/get_user_prefs.py
-      - ls lambda_functions/LoginUser/login_user.py && zip -j login_user.zip lambda_functions/LoginUser/login_user.py
-      - ls lambda_functions/UpdateUserPreferences/update_user_prefs.py && zip -j update_user_prefs.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
-      - ls lambda_functions/GetWeatherByLocation/get_weather.py && zip -j get_weather.zip lambda_functions/GetWeatherByLocation/get_weather.py
+      - zip -j register_user.zip lambda_functions/RegisterUser/register_user.py
+      - zip -j get_user_prefs.zip lambda_functions/GetUserPreferences/get_user_prefs.py
+      - zip -j login_user.zip lambda_functions/LoginUser/login_user.py
+      - zip -j update_user_prefs.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
+      - zip -j get_weather.zip lambda_functions/GetWeatherByLocation/get_weather.py
 
-      - echo "🌐 Checking and syncing frontend..."
+      - echo "🌐 Syncing frontend to S3..."
       - ls -al frontend/ || echo "frontend/ directory not found or empty"
       - aws s3 sync frontend/ s3://windy-app2/ --delete || echo "S3 sync failed — check IAM permissions or bucket name"
 
   post_build:
     commands:
       - echo "🧪 Validating Lambda zip files..."
-      - ls -lh *.zip
-      - unzip -l register_user.zip || echo "❌ register_user.zip is missing or invalid"
-      - unzip -l get_user_prefs.zip || echo "❌ get_user_prefs.zip is missing or invalid"
-      - unzip -l login_user.zip || echo "❌ login_user.zip is missing or invalid"
-      - unzip -l update_user_prefs.zip || echo "❌ update_user_prefs.zip is missing or invalid"
-      - unzip -l get_weather.zip || echo "❌ get_weather.zip is missing or invalid"
+      - unzip -l register_user.zip
+      - unzip -l get_user_prefs.zip
+      - unzip -l login_user.zip
+      - unzip -l update_user_prefs.zip
+      - unzip -l get_weather.zip
 
-      - echo "🔍 Checking if Lambda functions exist..."
-      - aws lambda get-function --function-name register_user --region eu-north-1 || echo "❌ Lambda function 'register_user' not found"
-      - aws lambda get-function --function-name get_user_prefs --region eu-north-1 || echo "❌ Lambda function 'get_user_prefs' not found"
-      - aws lambda get-function --function-name login_user --region eu-north-1 || echo "❌ Lambda function 'login_user' not found"
-      - aws lambda get-function --function-name update_user_prefs --region eu-north-1 || echo "❌ Lambda function 'update_user_prefs' not found"
-      - aws lambda get-function --function-name get_weather --region eu-north-1 || echo "❌ Lambda function 'get_weather' not found"
+      - echo "🚀 Deploying Lambda functions in eu-north-1..."
 
-      - echo "🚀 Updating Lambda functions in eu-north-1..."
-      - aws lambda update-function-code --region eu-north-1 --function-name register_user --zip-file fileb://register_user.zip
-      - aws lambda update-function-code --region eu-north-1 --function-name get_user_prefs --zip-file fileb://get_user_prefs.zip
-      - aws lambda update-function-code --region eu-north-1 --function-name login_user --zip-file fileb://login_user.zip
-      - aws lambda update-function-code --region eu-north-1 --function-name update_user_prefs --zip-file fileb://update_user_prefs.zip
-      - aws lambda update-function-code --region eu-north-1 --function-name get_weather --zip-file fileb://get_weather.zip
+      - |
+        for fn in register_user get_user_prefs login_user update_user_prefs get_weather; do
+          zip_file="${fn}.zip"
+          handler="${fn}.lambda_handler"
+          echo "→ Checking if $fn exists..."
+
+          if aws lambda get-function --function-name "$fn" >/dev/null 2>&1; then
+            echo "✅ Updating existing function: $fn"
+            aws lambda update-function-code \
+              --function-name "$fn" \
+              --zip-file "fileb://${zip_file}"
+          else
+            echo "🆕 Creating new function: $fn"
+            aws lambda create-function \
+              --function-name "$fn" \
+              --runtime python3.11 \
+              --role arn:aws:iam::651706765226:role/your-lambda-execution-role \
+              --handler "$handler" \
+              --zip-file "fileb://${zip_file}" \
+              --region eu-north-1
+          fi
+        done
 
 artifacts:
   files:
