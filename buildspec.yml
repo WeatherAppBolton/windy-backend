@@ -2,22 +2,21 @@ version: 0.2
 
 phases:
   install:
-  runtime-versions:
-    python: 3.11
-  commands:
-    - echo "🔧 Installing dependencies..."
-    - pip install --upgrade pip
-    - which zip || (command -v yum && yum install -y zip) || (command -v apt-get && apt-get update && apt-get install -y zip) || echo "zip already installed or no package manager available"
-
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "🔧 Installing dependencies..."
+      - pip install --upgrade pip
+      - which zip || (command -v yum && yum install -y zip) || (command -v apt-get && apt-get update && apt-get install -y zip) || echo "zip already installed or no package manager available"
 
   build:
     commands:
       - echo "📦 Zipping Lambda functions..."
-      - zip -j RegisterUser.zip lambda_functions/RegisterUser/lambda_function.py
-      - zip -j GetUserPreferences.zip lambda_functions/GetUserPreferences/lambda_function.py
-      - zip -j LoginUser.zip lambda_functions/LoginUser/lambda_function.py
-      - zip -j UpdateUserPreferences.zip lambda_functions/UpdateUserPreferences/lambda_function.py
-      - zip -j GetWeatherByLocation.zip lambda_functions/GetWeatherByLocation/lambda_function.py
+      - zip -j RegisterUser.zip lambda/RegisterUser/lambda_function.py
+      - zip -j GetUserPreferences.zip lambda/GetUserPreferences/lambda_function.py
+      - zip -j LoginUser.zip lambda/LoginUser/lambda_function.py
+      - zip -j UpdateUserPreferences.zip lambda/UpdateUserPreferences/lambda_function.py
+      - zip -j GetWeatherByLocation.zip lambda/GetWeatherByLocation/lambda_function.py
 
       - echo "🌍 Uploading frontend to S3..."
       - aws s3 sync frontend/ s3://weather-frontend-app/ --delete
