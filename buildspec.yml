@@ -1,0 +1,34 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - pip install --upgrade pip
+      - yum update -y && yum install zip -y
+
+  build:
+    commands:
+      # Package all Lambda functions
+      - zip -j RegisterUser.zip lambda_functions/RegisterUser/register_user.py
+      - zip -j GetUserPreferences.zip lambda_functions/GetUserPreferences/get_user_prefs.py
+      - zip -j LoginUser.zip lambda_functions/LoginUser/login_user.py
+      - zip -j UpdateUserPreferences.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
+      - zip -j GetWeatherByLocation.zip lambda_functions/GetWeatherByLocation/get_weather.py
+      
+      # Upload static site to S3
+      - aws s3 sync frontend/ s3://windy-app-k3-team/ --delete
+
+  post_build:
+    commands:
+      - echo "Updating Lambda functions..."
+      - aws lambda update-function-code --function-name RegisterUser --zip-file fileb://RegisterUser.zip
+      - aws lambda update-function-code --function-name GetUserPreferences --zip-file fileb://GetUserPreferences.zip
+      - aws lambda update-function-code --function-name LoginUser --zip-file fileb://LoginUser.zip
+      - aws lambda update-function-code --function-name UpdateUserPreferences --zip-file fileb://UpdateUserPreferences.zip
+      - aws lambda update-function-code --function-name GetWeatherByLocation --zip-file fileb://GetWeatherByLocation.zip
+
+artifacts:
+  files:
+    - '*.zip'
