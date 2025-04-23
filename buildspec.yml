@@ -7,56 +7,28 @@ phases:
     commands:
       - echo "🔧 Installing dependencies..."
       - pip install --upgrade pip
-      - which zip || (command -v yum && yum install -y zip) || (command -v apt-get && apt-get update && apt-get install -y zip)
+      - yum update -y && yum install -y zip
 
   build:
     commands:
       - echo "📦 Zipping Lambda functions..."
-      - zip -j RegisterUser.zip lambda_functions/RegisterUser/register_user.py
-      - zip -j LoginUser.zip lambda_functions/LoginUser/login_user.py
-      - zip -j GetUserPreferences.zip lambda_functions/GetUserPreferences/get_user_prefs.py
-      - zip -j UpdateUserPreferences.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
-      - zip -j GetWeatherByLocation.zip lambda_functions/GetWeatherByLocation/get_weather.py
+      - zip -j RegisterUser.zip lambda_functions/RegisterUser/lambda_function.py
+      - zip -j GetUserPreferences.zip lambda_functions/GetUserPreferences/lambda_function.py
+      - zip -j LoginUser.zip lambda_functions/LoginUser/lambda_function.py
+      - zip -j UpdateUserPreferences.zip lambda_functions/UpdateUserPreferences/lambda_function.py
+      - zip -j GetWeatherByLocation.zip lambda_functions/GetWeatherByLocation/lambda_function.py
 
       - echo "🌍 Uploading frontend to S3..."
-      - aws s3 sync frontend/ s3://weather-frontend-app/ --delete || echo "⚠️ S3 sync failed — check bucket name or permissions"
+      - aws s3 sync frontend/ s3://weather-frontend-app/ --delete
 
   post_build:
     commands:
-      - echo "🚀 Creating or updating Lambda functions..."
-      - |
-        REGION="eu-north-1"
-        LAMBDA_ROLE_ARN="arn:aws:iam::746669220952:role/LambdaBasicExecutionRole"
-
-        declare -A FUNCTIONS=(
-          [RegisterUser]="RegisterUser.zip register_user.lambda_handler"
-          [LoginUser]="LoginUser.zip login_user.lambda_handler"
-          [GetUserPreferences]="GetUserPreferences.zip get_user_prefs.lambda_handler"
-          [UpdateUserPreferences]="UpdateUserPreferences.zip update_user_prefs.lambda_handler"
-          [GetWeatherByLocation]="GetWeatherByLocation.zip get_weather.lambda_handler"
-        )
-
-        for name in "${!FUNCTIONS[@]}"; do
-          IFS=' ' read -r zip_file handler <<< "${FUNCTIONS[$name]}"
-          echo "→ Deploying $name..."
-
-          if aws lambda get-function --function-name "$name" --region "$REGION" >/dev/null 2>&1; then
-            echo "✅ Updating $name"
-            aws lambda update-function-code \
-              --function-name "$name" \
-              --zip-file "fileb://${zip_file}" \
-              --region "$REGION"
-          else
-            echo "🆕 Creating $name"
-            aws lambda create-function \
-              --function-name "$name" \
-              --runtime python3.11 \
-              --role "$LAMBDA_ROLE_ARN" \
-              --handler "$handler" \
-              --zip-file "fileb://${zip_file}" \
-              --region "$REGION"
-          fi
-        done
+      - echo "🚀 Updating Lambda functions..."
+      - aws lambda update-function-code --function-name RegisterUser --zip-file fileb://RegisterUser.zip
+      - aws lambda update-function-code --function-name GetUserPreferences --zip-file fileb://GetUserPreferences.zip
+      - aws lambda update-function-code --function-name LoginUser --zip-file fileb://LoginUser.zip
+      - aws lambda update-function-code --function-name UpdateUserPreferences --zip-file fileb://UpdateUserPreferences.zip
+      - aws lambda update-function-code --function-name GetWeatherByLocation --zip-file fileb://GetWeatherByLocation.zip
 
 artifacts:
   files:
