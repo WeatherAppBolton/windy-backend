@@ -6,7 +6,7 @@ phases:
       python: 3.11
     commands:
       - pip install --upgrade pip
-      - which zip || (command -v yum && yum install -y zip) || echo "zip already installed or yum not available"
+      - zip --version || (command -v yum && yum install -y zip) || echo "zip already installed or yum not available"
 
   build:
     commands:
@@ -25,12 +25,12 @@ phases:
 
   post_build:
     commands:
-      - echo "Verifying Lambda zip files before updating functions..."
-      - unzip -l register_user.zip || echo "Zip missing or invalid: register_user.zip"
-      - unzip -l get_user_prefs.zip || echo "Zip missing or invalid: get_user_prefs.zip"
-      - unzip -l login_user.zip || echo "Zip missing or invalid: login_user.zip"
-      - unzip -l update_user_prefs.zip || echo "Zip missing or invalid: update_user_prefs.zip"
-      - unzip -l get_weather.zip || echo "Zip missing or invalid: get_weather.zip"
+      - echo "Verifying Lambda zip files..."
+      - unzip -l register_user.zip || echo "register_user.zip missing or invalid"
+      - unzip -l get_user_prefs.zip || echo "get_user_prefs.zip missing or invalid"
+      - unzip -l login_user.zip || echo "login_user.zip missing or invalid"
+      - unzip -l update_user_prefs.zip || echo "update_user_prefs.zip missing or invalid"
+      - unzip -l get_weather.zip || echo "get_weather.zip missing or invalid"
 
       - echo "Updating Lambda functions..."
       - aws lambda update-function-code --function-name register_user --zip-file fileb://register_user.zip
