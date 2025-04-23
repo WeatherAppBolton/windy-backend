@@ -2,12 +2,13 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      python: 3.11
-    commands:
-      - echo "🔧 Installing dependencies..."
-      - pip install --upgrade pip
-      - yum update -y && yum install -y zip
+  runtime-versions:
+    python: 3.11
+  commands:
+    - echo "🔧 Installing dependencies..."
+    - pip install --upgrade pip
+    - which zip || (command -v yum && yum install -y zip) || (command -v apt-get && apt-get update && apt-get install -y zip) || echo "zip already installed or no package manager available"
+
 
   build:
     commands:
