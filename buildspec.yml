@@ -7,15 +7,16 @@ phases:
     commands:
       - pip install --upgrade pip
       - zip --version || (command -v yum && yum install -y zip) || echo "zip already installed or yum not available"
+      - export AWS_DEFAULT_REGION=eu-north-1
 
   build:
     commands:
       - echo "Packaging Lambda functions..."
-      - zip -j register_user.zip lambda_functions/RegisterUser/register_user.py
-      - zip -j get_user_prefs.zip lambda_functions/GetUserPreferences/get_user_prefs.py
-      - zip -j login_user.zip lambda_functions/LoginUser/login_user.py
-      - zip -j update_user_prefs.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
-      - zip -j get_weather.zip lambda_functions/GetWeatherByLocation/get_weather.py
+      - zip -j register_user.zip lambda_functions/RegisterUser/RegisterUser.py
+      - zip -j get_user_prefs.zip lambda_functions/GetUserPreferences/GetUserPreferences.py
+      - zip -j login_user.zip lambda_functions/LoginUser/LoginUser.py
+      - zip -j update_user_prefs.zip lambda_functions/UpdateUserPreferences/UpdateUserPreferences.py
+      - zip -j get_weather.zip lambda_functions/GetWeatherByLocation/GetWeatherByLocation.py
 
       - echo "Checking frontend directory..."
       - ls -al frontend/ || echo "frontend/ directory not found or empty"
