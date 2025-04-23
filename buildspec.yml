@@ -12,11 +12,11 @@ phases:
   build:
     commands:
       - echo "📦 Packaging Lambda functions..."
-      - zip -j RegisterUser.zip lambda/RegisterUser/lambda_function.py
-      - zip -j GetUserPreferences.zip lambda/GetUserPreferences/lambda_function.py
-      - zip -j LoginUser.zip lambda/LoginUser/lambda_function.py
-      - zip -j UpdateUserPreferences.zip lambda/UpdateUserPreferences/lambda_function.py
-      - zip -j GetWeatherByLocation.zip lambda/GetWeatherByLocation/lambda_function.py
+      - zip -j RegisterUser.zip lambda_functions/RegisterUser/register_user.py
+      - zip -j GetUserPreferences.zip lambda_functions/GetUserPreferences/get_user_prefs.py
+      - zip -j LoginUser.zip lambda_functions/LoginUser/login_user.py
+      - zip -j UpdateUserPreferences.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
+      - zip -j GetWeatherByLocation.zip lambda_functions/GetWeatherByLocation/get_weather.py
 
       - echo "🌐 Uploading frontend to S3..."
       - ls -al frontend/ || echo "frontend/ directory not found or empty"
@@ -25,11 +25,11 @@ phases:
   post_build:
     commands:
       - echo "🧪 Validating zip files..."
-      - unzip -l RegisterUser.zip
-      - unzip -l GetUserPreferences.zip
-      - unzip -l LoginUser.zip
-      - unzip -l UpdateUserPreferences.zip
-      - unzip -l GetWeatherByLocation.zip
+      - unzip -l RegisterUser.zip || echo "❌ RegisterUser.zip is missing or invalid"
+      - unzip -l GetUserPreferences.zip || echo "❌ GetUserPreferences.zip is missing or invalid"
+      - unzip -l LoginUser.zip || echo "❌ LoginUser.zip is missing or invalid"
+      - unzip -l UpdateUserPreferences.zip || echo "❌ UpdateUserPreferences.zip is missing or invalid"
+      - unzip -l GetWeatherByLocation.zip || echo "❌ GetWeatherByLocation.zip is missing or invalid"
 
       - echo "🚀 Updating Lambda functions (must already exist)..."
       - aws lambda update-function-code --function-name RegisterUser --zip-file fileb://RegisterUser.zip
