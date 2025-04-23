@@ -5,42 +5,30 @@ phases:
     runtime-versions:
       python: 3.11
     commands:
-      - echo "📦 Installing zip and setting region..."
+      - echo "📦 Installing zip and dependencies..."
       - pip install --upgrade pip
-      - zip --version || (command -v yum && yum install -y zip) || echo "zip already installed or yum not available"
-      - export AWS_DEFAULT_REGION=eu-north-1
+      - yum update -y && yum install -y zip
 
   build:
     commands:
-      - echo "🔍 Listing Lambda source files..."
-      - find lambda_functions/
-
       - echo "📦 Packaging Lambda functions..."
-      - zip -j register_user.zip lambda_functions/RegisterUser/register_user.py
-      - zip -j get_user_prefs.zip lambda_functions/GetUserPreferences/get_user_prefs.py
-      - zip -j login_user.zip lambda_functions/LoginUser/login_user.py
-      - zip -j update_user_prefs.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
-      - zip -j get_weather.zip lambda_functions/GetWeatherByLocation/get_weather.py
+      - zip -j RegisterUser.zip lambda/RegisterUser/lambda_function.py
+      - zip -j GetUserPreferences.zip lambda/GetUserPreferences/lambda_function.py
+      - zip -j LoginUser.zip lambda/LoginUser/lambda_function.py
+      - zip -j UpdateUserPreferences.zip lambda/UpdateUserPreferences/lambda_function.py
+      - zip -j GetWeatherByLocation.zip lambda/GetWeatherByLocation/lambda_function.py
 
-      - echo "🌐 Syncing frontend to S3..."
-      - ls -al frontend/ || echo "frontend/ directory not found or empty"
-      - aws s3 sync frontend/ s3://windy-app2/ --delete || echo "S3 sync failed — check IAM permissions or bucket name"
+      - echo "🌐 Uploading frontend to S3..."
+      - aws s3 sync frontend/ s3://windy-app2/ --delete || echo "S3 sync failed — check bucket or IAM permissions"
 
   post_build:
     commands:
-      - echo "🧪 Validating zip files..."
-      - unzip -l register_user.zip
-      - unzip -l get_user_prefs.zip
-      - unzip -l login_user.zip
-      - unzip -l update_user_prefs.zip
-      - unzip -l get_weather.zip
-
       - echo "🚀 Updating Lambda functions (must already exist)..."
-      - aws lambda update-function-code --function-name register_user --zip-file fileb://register_user.zip
-      - aws lambda update-function-code --function-name get_user_prefs --zip-file fileb://get_user_prefs.zip
-      - aws lambda update-function-code --function-name login_user --zip-file fileb://login_user.zip
-      - aws lambda update-function-code --function-name update_user_prefs --zip-file fileb://update_user_prefs.zip
-      - aws lambda update-function-code --function-name get_weather --zip-file fileb://get_weather.zip
+      - aws lambda update-function-code --function-name RegisterUser --zip-file fileb://RegisterUser.zip
+      - aws lambda update-function-code --function-name GetUserPreferences --zip-file fileb://GetUserPreferences.zip
+      - aws lambda update-function-code --function-name LoginUser --zip-file fileb://LoginUser.zip
+      - aws lambda update-function-code --function-name UpdateUserPreferences --zip-file fileb://UpdateUserPreferences.zip
+      - aws lambda update-function-code --function-name GetWeatherByLocation --zip-file fileb://GetWeatherByLocation.zip
 
 artifacts:
   files:
