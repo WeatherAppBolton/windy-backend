@@ -1,0 +1,32 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "🔧 Installing zip if needed..."
+      - pip install --upgrade pip
+      - which zip || (command -v yum && yum install -y zip) || (command -v apt-get && apt-get update && apt-get install -y zip)
+
+  build:
+    commands:
+      - echo "📦 Zipping Lambda functions..."
+      - zip -j RegisterUser.zip lambda_functions/RegisterUser/register_user.py
+      - zip -j LoginUser.zip lambda_functions/LoginUser/login_user.py
+      - zip -j GetUserPreferences.zip lambda_functions/GetUserPreferences/get_user_prefs.py
+      - zip -j UpdateUserPreferences.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
+      - zip -j GetWeatherByLocation.zip lambda_functions/GetWeatherByLocation/get_weather.py
+
+      - echo "🌍 Uploading frontend to S3..."
+      - aws s3 sync frontend/ s3://windy-app-k3-team/ --delete || echo "⚠️ S3 sync failed — check bucket name or permissions"
+
+  post_build:
+    commands:
+      - echo "🚀 Deploying Lambda functions..."
+      - chmod +x scripts/deploy_lambda.sh
+      - ./scripts/deploy_lambda.sh
+
+artifacts:
+  files:
+    - '*.zip'

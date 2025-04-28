@@ -1,4 +1,4 @@
-name: Run Lambda Tests
+name: Run Lambda Tests 🧪
 
 on:
   push:
@@ -19,17 +19,18 @@ jobs:
       with:
         python-version: "3.13"
 
-    - name: 📦 Install test dependencies
+    - name: 📦 Install dependencies
       run: |
         python -m pip install --upgrade pip
-        for file in $(find lambda_functions -name "requirements.txt"); do
-          pip install -r "$file"
-        done
+        pip install -r requirements-dev.txt
 
-    - name: 🧩 Add lambda_functions to PYTHONPATH
+    - name: 🧩 Set environment variables
       run: |
         echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+        echo "AWS_DEFAULT_REGION=eu-north-1" >> $GITHUB_ENV
 
-    - name: 🧪 Run all unit tests
+    - name: 🧪 Run unit tests
+      env:
+        WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
       run: |
         python -m unittest discover -s tests -v

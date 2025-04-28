@@ -1,5 +1,5 @@
 import unittest
-from lambda_functions.UpdateUserPreferences.handler import lambda_handler
+from lambda_functions.UpdateUserPreferences.update_user_prefs import lambda_handler
 
 class TestUpdateUserPreferences(unittest.TestCase):
     def test_missing_email(self):

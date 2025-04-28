@@ -1,5 +1,5 @@
 import unittest
-from lambda_functions.GetWeatherByLocation.handler import lambda_handler
+from lambda_functions.GetWeatherByLocation.get_weather import lambda_handler
 
 class TestGetWeatherByLocation(unittest.TestCase):
     def test_valid_city(self):

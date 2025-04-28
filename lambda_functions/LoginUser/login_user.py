@@ -2,10 +2,10 @@ import json
 import boto3
 import bcrypt
 
-dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('RegisteredUsers')
-
 def lambda_handler(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('RegisteredUsers')
+
     print("📥 EVENT:", json.dumps(event))
     
     try:

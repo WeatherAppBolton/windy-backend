@@ -1,5 +1,5 @@
 import unittest
-from lambda_functions.RegisterUser.handler import lambda_handler
+from lambda_functions.RegisterUser.register_user import lambda_handler
 
 class TestRegisterUserHandler(unittest.TestCase):
     def test_missing_fields(self):
