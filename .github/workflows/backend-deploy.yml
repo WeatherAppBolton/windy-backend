@@ -1,0 +1,134 @@
+name: 🧪 Test + Deploy Lambda Functions!
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📅 Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 🚀 Set up Python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install coverage flake8 bandit  # ✅ New tools
+
+      - name: 🔢 Set environment variables
+        run: |
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          echo "AWS_DEFAULT_REGION=eu-north-1" >> $GITHUB_ENV
+
+      - name: 📊 Check Test Coverage
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+          LOG_BUCKET: ${{ secrets.S3_ARTIFACT_BUCKET }}
+        run: |
+          coverage run -m unittest discover -s tests -v
+          coverage report
+          coverage html || true  # optional
+
+      - name: 🧹 Lint code with flake8
+        run: |
+          flake8 lambda_functions/GetUserPreferences/ \
+                 lambda_functions/RegisterUser/ \
+                 lambda_functions/UpdateUserPreferences/ \
+                 lambda_functions/GetWeatherByLocation/ \
+                 lambda_functions/LoginUser/ \
+                 logger.py \
+                 --count --max-line-length=100 --statistics
+
+
+      - name: 🔐 Scan for vulnerabilities with Bandit
+        run: |
+          bandit -r lambda_functions/ -n 5
+
+      - name: 📁 Zip, Upload to S3 & Deploy Lambdas
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          S3_ARTIFACT_BUCKET: ${{ secrets.S3_ARTIFACT_BUCKET }}
+        run: |
+          COMMIT=$(git rev-parse --short HEAD)
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+          for fn in lambda_functions/*; do
+            name=$(basename "$fn")
+
+            if [[ "$name" == "common" || "$name" == "dev-notes" || "$name" == "__pycache__" || ! -d "$fn" ]]; then
+              echo "⏭️ Skipping $name"
+              continue
+            fi
+
+            if ! ls "$fn"/*.py >/dev/null 2>&1; then
+              echo "⚠️ No .py files found in $name – skipping"
+              continue
+            fi
+
+            echo "📦 Zipping $name"
+            zip -r "${name}.zip" "$fn" logger.py
+
+            echo "☁️ Uploading $name.zip to S3..."
+            aws s3 cp "${name}.zip" "s3://$S3_ARTIFACT_BUCKET/lambdas/${name}-${COMMIT}.zip" \
+              --region "$AWS_REGION"
+
+            echo "🚀 Deploying to Lambda: $name"
+            aws lambda update-function-code \
+              --function-name "$name" \
+              --zip-file fileb://"${name}.zip" \
+              --region "$AWS_REGION" || echo "❌ Failed to update $name"
+
+            echo "🕐 Waiting for update to complete: $name"
+            aws lambda wait function-updated \
+              --function-name "$name" \
+              --region "$AWS_REGION"
+          done
+
+      - name: 📢 Notify via SNS – ✅ Success
+        if: success()
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SNS_TOPIC_ARN: ${{ secrets.SNS_TOPIC_ARN }}
+        run: |
+          COMMIT=$(git rev-parse --short HEAD)
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          aws sns publish \
+            --topic-arn "$SNS_TOPIC_ARN" \
+            --region "$AWS_REGION" \
+            --message "✅ Lambda backend deployed successfully 🚀
+            Branch: $BRANCH
+            Commit: $COMMIT"
+
+      - name: 📢 Notify via SNS – ❌ Failure
+        if: failure()
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SNS_TOPIC_ARN: ${{ secrets.SNS_TOPIC_ARN }}
+        run: |
+          COMMIT=$(git rev-parse --short HEAD)
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          aws sns publish \
+            --topic-arn "$SNS_TOPIC_ARN" \
+            --region "$AWS_REGION" \
+            --message "❌ Lambda backend deployment FAILED ❗
+            Branch: $BRANCH
+            Commit: $COMMIT
+            Check logs for details."
