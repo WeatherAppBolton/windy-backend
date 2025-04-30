@@ -20,9 +20,9 @@ declare -A FUNCTIONS=(
   [GetWeatherByLocation]="GetWeatherByLocation.zip get_weather.lambda_handler"
 )
 
-# Check if the role exists in this account
-if ! aws iam get-role --role-name "$LAMBDA_ROLE_NAME" --region "$REGION" >/dev/null 2>&1; then
-  echo "❌ ERROR: IAM role $LAMBDA_ROLE_ARN not found in this account ($ACCOUNT_ID) or region ($REGION)."
+# ✅ FIX: IAM is global – remove --region
+if ! aws iam get-role --role-name "$LAMBDA_ROLE_NAME" >/dev/null 2>&1; then
+  echo "❌ ERROR: IAM role $LAMBDA_ROLE_ARN not found in this account ($ACCOUNT_ID)."
   exit 1
 fi
 
