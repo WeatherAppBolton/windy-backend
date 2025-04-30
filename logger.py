@@ -3,7 +3,6 @@ import json
 import os
 from datetime import datetime
 
-
 def log_to_s3(payload, prefix="logs"):
     s3 = boto3.client("s3")
     log_bucket = os.environ.get("LOG_BUCKET", "windy-artifact-bucket")
