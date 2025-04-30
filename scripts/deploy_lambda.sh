@@ -39,6 +39,8 @@ EOF
     --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
   echo "✅ Created IAM role: $LAMBDA_ROLE_NAME"
+  echo "⏳ Waiting 10 seconds for IAM role to propagate..."
+  sleep 10
 fi
 
 # Define function names, zip files, and handlers
@@ -68,15 +70,19 @@ for name in "${!FUNCTIONS[@]}"; do
       --region "$REGION"
   else
     echo "🆕 Creating $name"
-    aws lambda create-function \
+    if ! aws lambda create-function \
       --function-name "$name" \
       --runtime python3.11 \
       --role "$LAMBDA_ROLE_ARN" \
       --handler "$handler" \
       --zip-file "fileb://${zip_file}" \
-      --region "$REGION" || {
+      --region "$REGION"; then
         echo "❌ ERROR: Failed to create function $name"
+        echo "📦 ZIP File: $zip_file"
+        echo "📄 Handler: $handler"
+        echo "🔐 Role ARN: $LAMBDA_ROLE_ARN"
+        echo "🌍 Region: $REGION"
         exit 254
-      }
+    fi
   fi
 done
