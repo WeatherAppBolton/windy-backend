@@ -7,9 +7,39 @@ REGION="eu-north-1"
 # Dynamically get the AWS Account ID
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 
-# Set the correct role ARN for the current account
+# Set role name and full ARN
 LAMBDA_ROLE_NAME="LambdaBasicExecutionRole"
 LAMBDA_ROLE_ARN="arn:aws:iam::${ACCOUNT_ID}:role/${LAMBDA_ROLE_NAME}"
+
+# Auto-create role if it doesn't exist
+if ! aws iam get-role --role-name "$LAMBDA_ROLE_NAME" >/dev/null 2>&1; then
+  echo "⚠️ IAM role $LAMBDA_ROLE_NAME not found. Creating it..."
+
+  cat > trust-policy.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+
+  aws iam create-role \
+    --role-name "$LAMBDA_ROLE_NAME" \
+    --assume-role-policy-document file://trust-policy.json
+
+  aws iam attach-role-policy \
+    --role-name "$LAMBDA_ROLE_NAME" \
+    --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  echo "✅ Created IAM role: $LAMBDA_ROLE_NAME"
+fi
 
 # Define function names, zip files, and handlers
 declare -A FUNCTIONS=(
@@ -20,24 +50,16 @@ declare -A FUNCTIONS=(
   [GetWeatherByLocation]="GetWeatherByLocation.zip get_weather.lambda_handler"
 )
 
-# ✅ FIX: IAM is global – remove --region
-if ! aws iam get-role --role-name "$LAMBDA_ROLE_NAME" >/dev/null 2>&1; then
-  echo "❌ ERROR: IAM role $LAMBDA_ROLE_ARN not found in this account ($ACCOUNT_ID)."
-  exit 1
-fi
-
-# Loop through each function and deploy
+# Deploy Lambda functions
 for name in "${!FUNCTIONS[@]}"; do
   IFS=' ' read -r zip_file handler <<< "${FUNCTIONS[$name]}"
   echo "→ Deploying $name..."
 
-  # Check for the existence of the zip file
   if [[ ! -f "$zip_file" ]]; then
     echo "❌ ERROR: Zip file $zip_file not found. Skipping $name."
     continue
   fi
 
-  # Check if function exists → update or create
   if aws lambda get-function --function-name "$name" --region "$REGION" >/dev/null 2>&1; then
     echo "✅ Updating $name"
     aws lambda update-function-code \
