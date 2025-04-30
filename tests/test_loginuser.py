@@ -1,20 +1,16 @@
 import unittest
-from unittest.mock import patch
-from lambda_functions.LoginUser.login_user import lambda_handler
+import json
+from unittest.mock import patch, MagicMock
+from lambda_functions.LoginUser.login_user import lambda_handler  # adjust path if needed
 
-class TestLoginUserHandler(unittest.TestCase):
+@patch('lambda_functions.LoginUser.login_user.boto3.resource')
+def test_invalid_credentials(self, mock_dynamodb):
+    # Simulate user not found
+    table_mock = MagicMock()
+    table_mock.get_item.return_value = {}  # No user returned
+    mock_dynamodb.return_value.Table.return_value = table_mock
 
-    @patch("lambda_functions.LoginUser.login_user.boto3.resource")
-    def test_invalid_credentials(self, mock_boto_resource):
-        # Mock table.get_item to return empty result (user not found)
-        mock_table = mock_boto_resource.return_value.Table.return_value
-        mock_table.get_item.return_value = {}  # No 'Item' key
+    event = {"body": json.dumps({"email": "fake@example.com", "password": "Fake123!"})}
+    result = lambda_handler(event, None)
 
-        event = {
-            "body": '{"email": "fake@example.com", "password": "Fake123!"}'
-        }
-        result = lambda_handler(event, None)
-        assert result["statusCode"] in [400, 401, 404]
-
-if __name__ == "__main__":
-    unittest.main()
+    self.assertIn(result["statusCode"], [400, 401, 404])
