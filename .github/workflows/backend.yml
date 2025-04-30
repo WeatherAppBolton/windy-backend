@@ -3,10 +3,14 @@ name: 🧪 Test + Deploy Lambda Functions!
 on:
   push:
     branches:
+      - '**'
+  pull_request:
+    branches:
       - main
 
 jobs:
-  test-and-deploy:
+  test:
+    name: 🧪 Run Tests + Lint + Security
     runs-on: ubuntu-latest
 
     steps:
@@ -39,15 +43,36 @@ jobs:
         run: |
           coverage run -m unittest discover -s tests -v
           coverage report
-          coverage html || true  # Optional
+          coverage html || true
 
       - name: 🧹 Lint Code (Non-blocking)
-        run: |
-          flake8 lambda_functions/ logger.py || true
+        run: flake8 lambda_functions/ logger.py || true
 
       - name: 🔒 Security Scan with Bandit (Non-blocking)
+        run: bandit -r lambda_functions/ -n 5 || true
+
+  deploy:
+    name: 🚀 Deploy to AWS Lambda
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📅 Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 🚀 Set up Python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: 📦 Minimal dependencies (zip only)
+        run: python -m pip install --upgrade pip
+
+      - name: 🔢 Set environment variables
         run: |
-          bandit -r lambda_functions/ -n 5 || true
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          echo "AWS_DEFAULT_REGION=eu-north-1" >> $GITHUB_ENV
 
       - name: 📁 Zip, Upload to S3 & Deploy Lambdas
         env:
@@ -92,7 +117,7 @@ jobs:
           done
 
       - name: 📢 Notify via SNS – ✅ Success
-        if: success()
+        if: success() && env.SNS_TOPIC_ARN != ''
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -109,7 +134,7 @@ jobs:
             Commit: $COMMIT"
 
       - name: 📢 Notify via SNS – ❌ Failure
-        if: failure()
+        if: failure() && env.SNS_TOPIC_ARN != ''
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
