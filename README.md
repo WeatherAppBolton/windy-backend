@@ -1,6 +1,7 @@
 # 🌤️ Weather App Backend
 This is the backend of the Weather App, a serverless weather forecast application that processes requests and fetches real-time weather data using OpenWeather API. The backend is built with AWS Lambda and API Gateway to ensure high availability, scalability, and low-cost operations.
 
+
 ## 🌍 Live API Endpoint
 🔗 Base API URL: https://j69ymxtksk.execute-api.eu-north-1.amazonaws.com/weather
 
