@@ -1,6 +1,6 @@
 import pytest
 import boto3
-from moto import mock_dynamodb
+from moto import mock_dynamodb2 as mock_dynamodb
 from datetime import datetime
 from unittest.mock import patch
 
