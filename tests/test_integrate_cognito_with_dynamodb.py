@@ -2,7 +2,7 @@ import pytest
 import boto3
 from moto import mock_dynamodb
 from datetime import datetime
-from lambda_function import lambda_handler  # Adjust if your file name is different
+from lambda_functions.integrate_cognito_with_Dynamodb import lambda_handler
 
 TABLE_NAME = "RegisteredUsers"
 
