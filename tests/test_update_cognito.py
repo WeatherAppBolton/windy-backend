@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 import json
 
-import update_cognito_with_dynamodb  
+from lambda_functions.import update_cognito_with_dynamodb import lambda_handler
 
 class TestUpdateCognitoWithDynamo(unittest.TestCase):
 
