@@ -2,7 +2,7 @@ import pytest
 import boto3
 from moto import mock_dynamodb
 from datetime import datetime
-from lambda_functions.integrate_cognito_with_Dynamodb import lambda_handler
+from lambda_functions.IntegrateCognitowithDynamodb.integrate_cognito_with_Dynamodb import lambda_handler
 
 TABLE_NAME = "RegisteredUsers"
 
