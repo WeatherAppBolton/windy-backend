@@ -1,8 +1,49 @@
 #!/bin/bash
+set -e
+set -x
 
 REGION="eu-north-1"
-LAMBDA_ROLE_ARN="arn:aws:iam::746669220952:role/LambdaBasicExecutionRole"
 
+# Dynamically get the AWS Account ID
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+# Set role name and full ARN
+LAMBDA_ROLE_NAME="LambdaBasicExecutionRole"
+LAMBDA_ROLE_ARN="arn:aws:iam::${ACCOUNT_ID}:role/${LAMBDA_ROLE_NAME}"
+
+# Auto-create role if it doesn't exist
+if ! aws iam get-role --role-name "$LAMBDA_ROLE_NAME" >/dev/null 2>&1; then
+  echo "⚠️ IAM role $LAMBDA_ROLE_NAME not found. Creating it..."
+
+  cat > trust-policy.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+
+  aws iam create-role \
+    --role-name "$LAMBDA_ROLE_NAME" \
+    --assume-role-policy-document file://trust-policy.json
+
+  aws iam attach-role-policy \
+    --role-name "$LAMBDA_ROLE_NAME" \
+    --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  echo "✅ Created IAM role: $LAMBDA_ROLE_NAME"
+  echo "⏳ Waiting 10 seconds for IAM role to propagate..."
+  sleep 10
+fi
+
+# Define function names, zip files, and handlers
 declare -A FUNCTIONS=(
   [RegisterUser]="RegisterUser.zip register_user.lambda_handler"
   [LoginUser]="LoginUser.zip login_user.lambda_handler"
@@ -11,9 +52,15 @@ declare -A FUNCTIONS=(
   [GetWeatherByLocation]="GetWeatherByLocation.zip get_weather.lambda_handler"
 )
 
+# Deploy Lambda functions
 for name in "${!FUNCTIONS[@]}"; do
   IFS=' ' read -r zip_file handler <<< "${FUNCTIONS[$name]}"
   echo "→ Deploying $name..."
+
+  if [[ ! -f "$zip_file" ]]; then
+    echo "❌ ERROR: Zip file $zip_file not found. Skipping $name."
+    continue
+  fi
 
   if aws lambda get-function --function-name "$name" --region "$REGION" >/dev/null 2>&1; then
     echo "✅ Updating $name"
@@ -23,12 +70,19 @@ for name in "${!FUNCTIONS[@]}"; do
       --region "$REGION"
   else
     echo "🆕 Creating $name"
-    aws lambda create-function \
+    if ! aws lambda create-function \
       --function-name "$name" \
       --runtime python3.11 \
       --role "$LAMBDA_ROLE_ARN" \
       --handler "$handler" \
       --zip-file "fileb://${zip_file}" \
-      --region "$REGION"
+      --region "$REGION"; then
+        echo "❌ ERROR: Failed to create function $name"
+        echo "📦 ZIP File: $zip_file"
+        echo "📄 Handler: $handler"
+        echo "🔐 Role ARN: $LAMBDA_ROLE_ARN"
+        echo "🌍 Region: $REGION"
+        exit 254
+    fi
   fi
 done

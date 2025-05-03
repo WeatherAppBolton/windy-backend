@@ -1,3 +1,8 @@
 boto3
 requests
-bcrypt 
+bcrypt
+pytest>=7.0.0
+coverage
+flake8
+bandit
+moto==4.1.14
