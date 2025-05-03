@@ -2,7 +2,9 @@ import pytest
 import boto3
 from moto import mock_dynamodb
 from datetime import datetime
-from lambda_functions.IntegrateCognitowithDynamodb.integrate_cognito_with_Dynamodb import lambda_handler
+from unittest.mock import patch
+
+from lambda_functions.IntegrateCognitowithDynamodb import integrate_cognito_with_Dynamodb
 
 TABLE_NAME = "RegisteredUsers"
 
@@ -20,7 +22,8 @@ def dynamodb_mock():
         table.wait_until_exists()
         yield table
 
-def test_new_user_inserted(dynamodb_mock):
+@patch("lambda_functions.IntegrateCognitowithDynamodb.integrate_cognito_with_Dynamodb.log_to_s3")
+def test_new_user_inserted(mock_log, dynamodb_mock):
     # Mock event from Cognito post-confirm trigger
     event = {
         "request": {
@@ -32,7 +35,7 @@ def test_new_user_inserted(dynamodb_mock):
     }
 
     # Run lambda
-    result = lambda_handler(event, None)
+    result = integrate_cognito_with_Dynamodb.lambda_handler(event, None)
 
     # Validate return (should match original event)
     assert result == event
@@ -46,7 +49,8 @@ def test_new_user_inserted(dynamodb_mock):
     assert response["Item"]["password"] is None
     assert "createdAt" in response["Item"]
 
-def test_existing_user_skips_insert(dynamodb_mock):
+@patch("lambda_functions.IntegrateCognitowithDynamodb.integrate_cognito_with_Dynamodb.log_to_s3")
+def test_existing_user_skips_insert(mock_log, dynamodb_mock):
     # Pre-insert a record
     dynamodb_mock.put_item(Item={
         "email": "existing@example.com",
@@ -66,7 +70,7 @@ def test_existing_user_skips_insert(dynamodb_mock):
         }
     }
 
-    result = lambda_handler(event, None)
+    result = integrate_cognito_with_Dynamodb.lambda_handler(event, None)
 
     # Should still return original event
     assert result == event
