@@ -1,7 +1,7 @@
 import pytest
 import boto3
-from moto import mock_dynamodb2 as mock_dynamodb
-from datetime import datetime
+from moto import mock_dynamodb
+from datetime import datetime, timezone
 from unittest.mock import patch
 
 from lambda_functions.IntegrateCognitowithDynamodb import integrate_cognito_with_Dynamodb
@@ -58,7 +58,7 @@ def test_existing_user_skips_insert(mock_log, dynamodb_mock):
         "theme": "dark",
         "favorites": ["Paris"],
         "password": None,
-        "createdAt": datetime.utcnow().isoformat()
+        "createdAt": datetime.now(timezone.utc).isoformat()
     })
 
     event = {
