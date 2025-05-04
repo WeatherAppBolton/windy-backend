@@ -12,8 +12,10 @@ phases:
   build:
     commands:
       - echo "📦 Zipping Lambda functions..."
-      - zip -j RegisterUser.zip lambda_functions/RegisterUser/register_user.py
-      - zip -j LoginUser.zip lambda_functions/LoginUser/login_user.py
+     # - zip -j RegisterUser.zip lambda_functions/RegisterUser/register_user.py
+     # - zip -j LoginUser.zip lambda_functions/LoginUser/login_user.py
+      - zip -j UpdateCognitowithDynamo.zip lambda_functions/UpdateCognitowithDynamo/update_cognito_with_dynamodb.py
+      - zip -j IntegrateCognitowithDynamodb.zip lambda_functions/IntegrateCognitowithDynamodb/integrate_cognito_with_Dynamodb.py
       - zip -j GetUserPreferences.zip lambda_functions/GetUserPreferences/get_user_prefs.py
       - zip -j UpdateUserPreferences.zip lambda_functions/UpdateUserPreferences/update_user_prefs.py
       - zip -j GetWeatherByLocation.zip lambda_functions/GetWeatherByLocation/get_weather.py
