@@ -29,6 +29,7 @@ phases:
       - chmod +x scripts/deploy_lambda.sh
       - ./scripts/deploy_lambda.sh
 
+
 artifacts:
   files:
     - '*.zip'
