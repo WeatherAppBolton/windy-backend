@@ -25,10 +25,10 @@ phases:
       - aws s3 sync frontend/ s3://windy-app2/ --delete || echo "⚠️ S3 sync failed — check bucket name or permissions"
 
   post_build:
-    commands:
-      - echo "🚀 Deploying Lambda functions..."
-      - chmod +x scripts/deploy_lambda.sh
-      - ./scripts/deploy_lambda.sh || { echo '❌ deploy_lambda.sh failed'; exit 1; }
+  commands:
+    - echo "🚀 Deploying Lambdas..."
+    - chmod +x scripts/deploy_lambda.sh
+    - ./scripts/deploy_lambda.sh || { echo "❌ Lambda deploy failed – check logs above"; ls -al; exit 1; }
 
 artifacts:
   files:
