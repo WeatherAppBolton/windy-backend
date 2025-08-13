@@ -1,103 +1,66 @@
-# ⛅ Windy – Backend
+# ⛅ Windy – Backend (Archived)
 
-Serverless backend for the **Windy** application, developed as part of the collaborative project [WeatherAppBolton](https://github.com/WeatherAppBolton).  
-It handles requests and fetches real-time weather data from the **OpenWeatherMap API**, deployed on **AWS Lambda** with **API Gateway** to ensure high availability, scalability, and low operational costs.
+This repository contains the **backend** of the Windy project, developed collaboratively as part of [WeatherAppBolton](https://github.com/WeatherAppBolton).
 
----
-
-## 🌍 Live API Endpoint
-- **Base URL:**  
-  ```
-  https://j69ymxtksk.execute-api.eu-north-1.amazonaws.com/weather
-  ```
-- **Example query:**  
-  ```
-  https://j69ymxtksk.execute-api.eu-north-1.amazonaws.com/weather?location=London
-  ```
+Although the AWS infrastructure for this project has been **decommissioned**, this README documents **what problem we solved, how we built it, and the results we generated**.
 
 ---
 
-## 🏗️ Project Structure
-```
-/src
-├── .gitignore
-├── README.md
-├── lambda_functions/   # Main Lambda functions
-├── requirements.txt    # Python dependencies
-```
+## 🎯 Problem We Solved
+We aimed to create a **scalable, low-cost weather data backend** that could:
+- Fetch real-time weather information from **OpenWeatherMap API**
+- Process and return results quickly to a lightweight frontend
+- Be hosted using **serverless architecture** to reduce costs and simplify operations
+
+This was part of a team project to design and implement a complete weather application from scratch.
 
 ---
 
-## ⚡ Technologies Used
-- **Backend Language:** Python (Express-like routing with AWS Lambda)
-- **API Gateway:** Routing and request handling
-- **Serverless Compute:** AWS Lambda for backend logic
-- **Data Source:** OpenWeatherMap API
-- **Optional Infrastructure:** AWS DynamoDB or others (if persistence is added)
-- **CI/CD:** GitHub Actions or Serverless Framework for automated deployments
+## 💡 What We Built
+- **Architecture:** Serverless backend using **AWS Lambda** and **API Gateway**
+- **Data source:** OpenWeatherMap API for current weather and forecasts
+- **Languages & Tools:**
+  - **Python** for backend logic
+  - **AWS SAM** / **Serverless Framework** for local development & deployment
+  - **Postman** collections for API testing
+  - **GitHub Actions** for CI/CD
 
 ---
 
-## 🛠️ Installation & Setup
-
-### 1️⃣ Clone the repository
-```bash
-git clone https://github.com/WeatherAppBolton/windy-backend.git
-cd windy-backend
-```
-
-### 2️⃣ Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 3️⃣ Set up environment variables
-Create a `.env` file in the root directory:
-```
-OPENWEATHER_API_KEY=your_api_key
-AWS_REGION=your_region
-```
-
-*(If using a database, also add the relevant credentials)*
-
-### 4️⃣ Run locally
-Using **AWS SAM CLI**:
-```bash
-sam local start-api
-```
-Or with **Serverless Framework**:
-```bash
-serverless offline
-```
-
-### 5️⃣ Deploy to AWS
-```bash
-serverless deploy
+## 🏗️ High-Level Design
+```mermaid
+flowchart LR
+  A[Frontend UI] --> B[API Gateway]
+  B --> C[AWS Lambda Functions]
+  C --> D[(OpenWeatherMap API)]
+  C --> E[Optional: DynamoDB/S3 Cache]
+  C --> F[CloudWatch Logs for monitoring]
 ```
 
 ---
 
-## 📌 API Endpoints
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET    | `/weather?location=London` | Returns weather data for the specified city |
+## 🚀 Key Achievements
+- Delivered a **fully working API** that could return weather data in <500ms for most requests.
+- Designed the infrastructure to be **stateless, scalable, and pay-per-use**.
+- Implemented local development flows that mirrored production.
+- Created automated deployment pipelines and documented API endpoints in a shared Postman collection.
+- Demonstrated the ability to design and implement a serverless system end-to-end.
 
 ---
 
-## ✅ Testing
-Run unit and integration tests (if included in the repo):
-```bash
-pytest
+## 📂 Repository Contents
+```
+/lambda_functions/    # Python Lambda handlers
+/postman/             # API request collections for testing
+/tests/               # Unit and integration tests
+/scripts/             # Utility scripts for setup & deployment
+/docs/diagrams/       # Architecture diagrams
+/buildspec.yml        # AWS CodeBuild deployment config
 ```
 
 ---
 
-## 🚀 Deployment & CI/CD
-Deployment can be automated via GitHub Actions or Serverless Framework to publish changes directly to AWS.
-
----
-
-## 🔥 Contributors
+## 🧑‍🤝‍🧑 Contributors
 - Antonio Bueno  
 - Bilal  
 - Prateek  
@@ -105,6 +68,6 @@ Deployment can be automated via GitHub Actions or Serverless Framework to publis
 - Raj  
 - sb16crt
 
-📧 For support or suggestions, please open an issue in the repository.
-
 ---
+
+📌 *This project now serves as a portfolio example of our ability to deliver a functional, scalable backend using serverless technology, even though the AWS account hosting it has been retired.*
